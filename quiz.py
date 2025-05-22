@@ -54,3 +54,15 @@ print(df_cleaned.head())
 output_df = df_cleaned[['date', 'district', 'pm10', 'pm25', 'month', 'day', 'season']]
 # CSV로 저장
 output_df.to_csv('201906_output.csv', index=False, encoding='utf-8')
+
+
+#[4-1] 전체 pm10 평균 구하기
+avg_pm10 = df_cleaned['pm10'].mean()
+print(f'전체 pm10 평균: {avg_pm10:.2f}')
+
+#[5-1] pm 최댓값이 발생한 날짜, 구 출력
+print(df_cleaned['pm10'].max()) # 최댓값 구하기
+pm10_max = df_cleaned[df_cleaned['pm10'] == df_cleaned['pm10'].max()] # 해당하는 행 구하기
+
+print(f"pm 최댓값이 발생한 날짜: {pm10_max['date'].values[0]}")
+print(f"pm 최댓값이 발생한 구: {pm10_max['district'].values[0]}")
