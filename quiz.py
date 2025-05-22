@@ -58,12 +58,31 @@ output_df.to_csv('201906_output.csv', index=False, encoding='utf-8')
 
 #[4-1] 전체 pm10 평균 구하기
 avg_pm10 = df_cleaned['pm10'].mean()
+print('[4]')
 print(f'전체 pm10 평균: {avg_pm10:.2f}')
 
-#[5-1] pm 최댓값이 발생한 날짜, 구 출력
-print(df_cleaned['pm10'].max()) # 최댓값 구하기
+#[5-1] pm10 최댓값이 발생한 날짜, 구 출력'
+print('[5]')
+print(f"pm10 최댓값: {df_cleaned['pm10'].max()}") # 최댓값 구하기
 pm10_max = df_cleaned[df_cleaned['pm10'] == df_cleaned['pm10'].max()] # 해당하는 행 구하기
+print(f"pm10 최댓값이 발생한 날짜: {pm10_max.iloc[0]['date'].strftime('%Y-%m-%d')}")
+print(f"pm10 최댓값이 발생한 구: {pm10_max.iloc[0]['district']}")
 
-print(f"pm 최댓값이 발생한 날짜: {pm10_max.iloc[0]['date'].strftime('%Y-%m-%d')}")
-print(f"pm 최댓값이 발생한 구: {pm10_max.iloc[0]['district']}")
+#[6-1] 각 구별 pm10 평균 계산
+district_avg_pm10 = df_cleaned.groupby('district')['pm10'].mean().reset_index()
+# 평균값 기준으로 내림차순 정렬
+district_avg_pm10 = district_avg_pm10.sort_values(by='pm10', ascending=False)
+
+# [6-2] 상위 5개 구만 출력 (컬럼: district, avg_pm10)
+top5_district_pm10 = district_avg_pm10.head(5)
+print('[6]')
+print(top5_district_pm10)
+
+# [7-1] 계절(season)별 평균 pm10, pm25 동시 계산
+season_avg = df_cleaned.groupby('season')[['pm10', 'pm25']].mean().reset_index()
+
+# [7-2] PM10 기준으로 오름차순 정렬
+season_avg = season_avg.sort_values(by='pm10')
+print('[7]')
+print(season_avg)
 
