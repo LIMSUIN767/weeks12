@@ -8,4 +8,12 @@ df = pd.read_csv('201906.csv', encoding='utf-8')  # 또는 encoding='cp949' 필�
 df_subset = df[['날짜', '측정소명', '미세먼지', '초미세먼지']].copy()
 df_subset.columns = ['date', 'district', 'pm10', 'pm25']
 
-print(df_subset.head())
+df_subset.head()
+
+# [1-3] 결측치 확인 및 제거
+missing_counts_original = df_subset.isnull().sum()
+print(missing_counts_original)
+df_cleaned = df_subset.dropna()
+
+missing_counts_cleaned = df_cleaned.isnull().sum()
+print(missing_counts_cleaned)
