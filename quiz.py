@@ -86,3 +86,74 @@ season_avg = season_avg.sort_values(by='pm10')
 print('[7]')
 print(season_avg)
 
+# [8-1] pm10 값을 기준으로 등급 분류 (good/normal/bad/worse)
+df_cleaned.loc[df_cleaned['pm10'] <= 30, 'pm10_grade'] = '좋음'
+df_cleaned.loc[(df_cleaned['pm10'] > 30) & (df_cleaned['pm10'] <= 80), 'pm10_grade'] = '보통'
+df_cleaned.loc[(df_cleaned['pm10'] > 80) & (df_cleaned['pm10'] <= 150), 'pm10_grade'] = '나쁨'
+df_cleaned.loc[df_cleaned['pm10'] > 150, 'pm10_grade'] = '매우 나쁨'
+
+# [8-2] 전체 데이터 기준 등급별 빈도, 비율 계산 (컬럼: pm_grade, n, pct)
+pm10_grade_summary = df_cleaned['pm10_grade'].value_counts().reset_index()
+pm10_grade_summary.columns = ['pm10_grade', 'count']
+pm10_grade_summary['percentage'] = (pm10_grade_summary['count'] / pm10_grade_summary['count'].sum()) * 100
+print('[8]')
+print(pm10_grade_summary)
+
+# [9-1] 구별 등급 분포 중 'good' 빈도와 전체 대비 비율 계산
+total_by_district = df_cleaned.groupby('district').size()
+good_by_district = df_cleaned[df_cleaned['pm10_grade'] == '좋음'].groupby('district').size()
+
+good_ratio_df = (good_by_district / total_by_district).reset_index(name='pct')
+good_ratio_df['n'] = good_by_district.values
+
+# [9-2] 비율(pct) 기준 내림차순 정렬 후 상위 5개 구만 출력 (컬럼: district, n, pct)
+top5_good_ratio = good_ratio_df.sort_values(by='pct', ascending=False).head(5)
+print('[9]')
+print(top5_good_ratio[['district', 'n', 'pct']])
+
+
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# [10] 날짜별 PM10 평균 시각화
+daily_pm10 = df_cleaned.groupby('date')['pm10'].mean().reset_index()
+
+plt.figure(figsize=(14, 5))
+sns.lineplot(data=daily_pm10, x='date', y='pm10', color='teal')
+plt.title('Daily Trend of PM10 in Seoul, 2019')
+plt.xlabel('Date')
+plt.ylabel('PM10 (㎍/m³)')
+plt.xticks(rotation=45)
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+#[11]
+# 영어 등급명으로 바꿔서 결과 도출
+df_cleaned['pm10_grade_eng'] = df_cleaned['pm10_grade'].map({
+    '좋음': 'good',
+    '보통': 'normal',
+    '나쁨': 'bad',
+    '매우 나쁨': 'worse'
+})
+
+#그룹화 진행
+season_grade_dist = df_cleaned.groupby(['season', 'pm10_grade_eng']).size().reset_index(name='n')
+season_grade_dist['pct'] = season_grade_dist['n'] / season_grade_dist.groupby('season')['n'].transform('sum') * 100
+
+# 막대 그래프 시각화
+plt.figure(figsize=(8, 6))
+sns.barplot(
+    data=season_grade_dist,
+    x='season',
+    y='pct',
+    hue='pm10_grade_eng',
+    hue_order=['good', 'normal', 'bad', 'worse']
+)
+plt.title('Seasonal Distribution of PM10 Grades in Seoul, 2019')
+plt.ylabel('Percentage (%)')
+plt.xlabel('Season')
+plt.legend(title='PM10 Grade')
+plt.tight_layout()
+plt.show()
