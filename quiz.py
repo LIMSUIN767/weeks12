@@ -15,6 +15,8 @@ df_cleaned = df_subset.dropna() #결측치가 pm10 에서 213개, pm25에서 203
 #missing_counts_cleaned = df_cleaned.isnull().sum()
 #print(missing_counts_cleaned)
 
+df_cleaned = df_cleaned[df_cleaned['district'] != '평균'] # 평균 값이라고 되어 있는 것들은 필요가 없으거라고 판단
+
 # 이상치 확인
 pm10_outliers = df_cleaned[(df_cleaned['pm10'] <= 0) | (df_cleaned['pm10'] >= 500)]
 print("PM10 이상치 개수:", len(pm10_outliers))
@@ -38,6 +40,17 @@ df_cleaned['pm25'] = df_cleaned['pm25'].astype(float)
 df_cleaned['month'] = df_cleaned['date'].dt.month
 df_cleaned['day'] = df_cleaned['date'].dt.day
 
-print(df_cleaned[['date', 'month', 'day']].head())
 
 #[2-2] 계절(season) 변수 생성: month 기준으로 spring/summer/autumn/winter
+df_cleaned.loc[df_cleaned['month'].isin([3, 4, 5]), 'season'] = 'spring'
+df_cleaned.loc[df_cleaned['month'].isin([6, 7, 8]), 'season'] = 'summer'
+df_cleaned.loc[df_cleaned['month'].isin([9, 10, 11]), 'season'] = 'autumn'
+df_cleaned.loc[df_cleaned['month'].isin([12, 1, 2]), 'season'] = 'winter'
+
+#[3-1] 최종 분석 대상 데이터 확인
+print(df_cleaned.head())
+
+#[3-2] csv로 output csv 저장
+output_df = df_cleaned[['date', 'district', 'pm10', 'pm25', 'month', 'day', 'season']]
+# CSV로 저장
+output_df.to_csv('201906_output.csv', index=False, encoding='utf-8')
