@@ -27,6 +27,9 @@ df_cleaned = df_cleaned[df_cleaned['date'].notna()]
 df_cleaned['pm10'] = df_cleaned['pm10'].astype(float)
 df_cleaned['pm25'] = df_cleaned['pm25'].astype(float)
 
-# 자료형 확인
-df_cleaned.dtypes
 
+# [2-1] month, day 파생변수 생성
+df_cleaned['month'] = df_cleaned['date'].dt.month
+df_cleaned['day'] = df_cleaned['date'].dt.day
+
+print(df_cleaned[['date', 'month', 'day']].head())
