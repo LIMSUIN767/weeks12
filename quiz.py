@@ -21,6 +21,7 @@ df_cleaned = df_subset.dropna()
 # [1-4] 자료형 변환: 문자형 → 날짜형, 실수형 등
 # 날짜 컬럼: 문자열 → datetime
 df_cleaned['date'] = pd.to_datetime(df_cleaned['date'], errors='coerce')
+df_cleaned = df_cleaned[df_cleaned['date'].notna()]
 
 # 미세먼지 및 초미세먼지: 숫자형(float)
 df_cleaned['pm10'] = df_cleaned['pm10'].astype(float)
@@ -28,6 +29,4 @@ df_cleaned['pm25'] = df_cleaned['pm25'].astype(float)
 
 # 자료형 확인
 df_cleaned.dtypes
-df_cleaned
-df_cleaned['date'].unique()
-print(df_cleaned['date'].isna().sum()
+
